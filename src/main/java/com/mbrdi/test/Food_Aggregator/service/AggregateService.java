@@ -30,23 +30,7 @@ public class AggregateService {
 	RestTemplate restTemplate;
 
 	public List<Food> buyItem(String name) {
-		List<Food> listFood = new ArrayList<>();
-		ResponseEntity<List<Food>> response;
-		response = restTemplate.exchange(fruitSupplier, HttpMethod.GET, null,
-				new ParameterizedTypeReference<List<Food>>() {
-				});
-		listFood.addAll(response.getBody());
-
-		response = restTemplate.exchange(vegetableSupplier, HttpMethod.GET, null,
-				new ParameterizedTypeReference<List<Food>>() {
-				});
-		listFood.addAll(response.getBody());
-
-		response = restTemplate.exchange(grainSupplier, HttpMethod.GET, null,
-				new ParameterizedTypeReference<List<Food>>() {
-				});
-
-		listFood.addAll(response.getBody());
+		List<Food> listFood = getAllItemFromSupplier();
 		List<Food> list = new ArrayList<>();
 		for (Food f : listFood) {
 			if (f.getName().equals(name))
@@ -59,6 +43,19 @@ public class AggregateService {
 	}
 
 	public List<Food> buyItemQty(String name, int quantity) {
+		List<Food> listFood =getAllItemFromSupplier();
+		List<Food> list = new ArrayList<>();
+		for (Food f : listFood) {
+			if (f.getName().equals(name) && f.getQuantity() >= quantity)
+				list.add(f);
+		}
+		if (list.size() > 0) {
+			return list;
+		}
+		throw new NotFoundException("Item not available");
+	}
+	
+	private List<Food> getAllItemFromSupplier() {
 		List<Food> listFood = new ArrayList<>();
 		ResponseEntity<List<Food>> response;
 		response = restTemplate.exchange(fruitSupplier, HttpMethod.GET, null,
@@ -76,15 +73,7 @@ public class AggregateService {
 				});
 
 		listFood.addAll(response.getBody());
-		List<Food> list = new ArrayList<>();
-		for (Food f : listFood) {
-			if (f.getName().equals(name) && f.getQuantity() >= quantity)
-				list.add(f);
-		}
-		if (list.size() > 0) {
-			return list;
-		}
-		throw new NotFoundException("Item not available");
+		return listFood;
 	}
 
 }
